@@ -38,17 +38,16 @@ function loadLevel() {
         console.log("LOADED LEVEL JSON");
         statOutput = document.getElementById("infotest")
         statOutput.innerHTML += `<br>INITIAL MARKERS: ${Object.keys(levelJSON.ed.markers).length}`
-        console.log("HOLY SHIT THE SECOND MARKER IN THIS LEVEL IS " + levelJSON.ed.markers[2] + "!!!!")
-        //combine the markers
-        // I REALLY WISH I WERENT ITERATING RIGHT NOW
+        console.log("HOLY SHIT THE SECOND MARKER IN THIS LEVEL IS " + JSON.stringify(levelJSON.ed.markers[2]) + "!!!!")
+        //Magical marker doubling machine. Temporary code just as a proof of concept
         let itemLength
         itemLength = levelJSON.ed.markers.length
-        for (let i = 0; i < (itemLength-1); i++) {
-            console.log("Adding item" + levelJSON.ed.markers[i])
-            levelJSON.ed.markers.push(levelJSON.ed.markers[i])
-        
+        //This is pretty much what we'll have to do except pushing to a new level file
+        //And pushing from several of these
+        for (let i = 0; i < (itemLength-1); i++) { // 
+            console.log("Adding item" + i)
+            levelJSON.ed.markers.push(levelJSON.ed.markers[i]) 
         }
-        levelJSON.ed.markers.push(levelJSON.ed.markers)
         console.log('lmao done')
         console.log(levelJSON.ed.markers) 
         console.log("LOADING THE LEVEL STATS YIPPIE!!!!!!!!!")
@@ -69,7 +68,7 @@ function download(filename, text){
     document.body.removeChild(element);
 }
 
-function saveLevel() {
-    var finalLevel = JSON.stringify(levelJSON)
-    download("level"+ ".lsb", finalLevel);
+function saveLevel(level) {
+    // var finalLevel = JSON.stringify(level)
+    download("level"+ ".lsb", level);
 }
