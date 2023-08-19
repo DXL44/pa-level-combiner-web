@@ -1,3 +1,7 @@
+// ------- NOTES -------
+// Always assume level JSON is parsed in functions.
+
+
 // ------- KEY FUNCTIONS -------
 function download(filename, text){
     var element = document.createElement('a');
@@ -22,7 +26,7 @@ function addInput(){ // Does what you'd expect. Adds a new input.
     input.setAttribute("accept", ".lsb");
     input.id="levelUpload"+inpNumber
     input.setAttribute("onChange",`storeNewLevel(${inpNumber}, levelsArray)`); // a surprise tool that will help us later
-
+    //not sure abt that now actually but maybe
     document.getElementById('infotest').appendChild(input) // slap it into the page
 } 
 
@@ -69,6 +73,11 @@ function extractThemes(level){ // Downloads all of the theme files present in a 
     }
 }
 
+// ------- LEVEL STATISTICS ------
+function updateStats() {
+    levelsUploaded = "a"
+}
+
 
 // ------- HANDLING LEVELS -------
 //make the level! woohoo!    
@@ -92,7 +101,32 @@ function storeLevel(){ // old function, REMOVE
           alert(fileReader.error);
     }
 }
-function loadLevel() {
+function combineLevels(level1, level2) { //Combine ALL levels in an array of level JSON objects
+    console.log(`combining levels lol`)
+    var finalLevel = level1
+    // push push push push push push EVERYTHING 
+    finalLevel.ed.markers.push(...level2.ed.markers)
+    finalLevel.ed.markers.push(...level2.prefab_objects) 
+    finalLevel.ed.markers.push(...level2.prefabs)
+    finalLevel.ed.markers.push(...level2.themes)
+    finalLevel.ed.markers.push(...level2.checkpoints)
+    finalLevel.ed.markers.push(...level2.beatmap_objects)
+    finalLevel.ed.markers.push(...level2.bg_objects)
+    for (let i = 0; i < (finalLevel.eventsc.length); i++) { // event keyframes (we get silly with it and iterate)
+        finalLevel.events[i].push(...level2.events[i])
+    }
+    console.log("done lol:")
+    console.log(finalLevel)
+    return finalLevel
+}
+
+function combineLevelArray(array){ //combine ALL levels in an array of level JSON objects
+    finalLevel = combineLevels(array[0], array[1])
+    for (let i = 2; i < (array.length-1); i++) {
+        finallevel = combineLevels(finalLevel, array[i])
+    }
+}
+function loadLevel() { //Add a level to THE LIST 
     inputLevel = theRealLevel
     if (inputLevel == ""){
         console.log("oops don't do that")
@@ -124,5 +158,3 @@ function saveLevel(level) {
     // var finalLevel = JSON.stringify(level)
     download("level"+ ".lsb", level);
 }
-
-// EXTRACT THEMES FROM A LEVEL THAT ARE USED IN THE LEVEL
