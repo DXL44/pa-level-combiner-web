@@ -105,16 +105,35 @@ function combineLevels(level1, level2) { //Combine ALL levels in an array of lev
     console.log(`combining levels lol`)
     var finalLevel = level1
     // push push push push push push EVERYTHING 
-    finalLevel.ed.markers.push(...level2.ed.markers)
-    finalLevel.ed.markers.push(...level2.prefab_objects) 
-    finalLevel.ed.markers.push(...level2.prefabs)
-    finalLevel.ed.markers.push(...level2.themes)
-    finalLevel.ed.markers.push(...level2.checkpoints)
-    finalLevel.ed.markers.push(...level2.beatmap_objects)
-    finalLevel.ed.markers.push(...level2.bg_objects)
-    for (let i = 0; i < (finalLevel.eventsc.length); i++) { // event keyframes (we get silly with it and iterate)
-        finalLevel.events[i].push(...level2.events[i])
+    //needs if statements in case there is Nothing
+    if (level2.ed.markers){
+        finalLevel.ed.markers.push(...level2.ed.markers)
     }
+    if (level2.prefab_objects){
+        finalLevel.prefab_objects.push(...level2.prefab_objects)
+    }
+    if (level2.prefabs){
+        finalLevel.prefabs.push(...level2.prefabs)
+    }
+    if (level2.themes){
+        finalLevel.themes.push(...level2.themes)
+    }
+    if (level2.checkpoints){
+        finalLevel.checkpoints.push(...level2.checkpoints)
+    }
+    if (level2.beatmap_objects){
+        finalLevel.beatmap_objects.push(...level2.beatmap_objects)
+    }
+    if (level2.bg_objects){
+        finalLevel.bg_objects.push(...level2.bg_objects)
+    }
+
+    if (level2.events){
+        for (let i = 0; i < (finalLevel.events.length); i++) { // event keyframes (we get silly with it and iterate)
+            finalLevel.events[i].push(...level2.events[i])
+        }
+    }
+
     console.log("done lol:")
     console.log(finalLevel)
     return finalLevel
@@ -158,3 +177,7 @@ function saveLevel(level) {
     // var finalLevel = JSON.stringify(level)
     download("level"+ ".lsb", level);
 }
+
+// ------- LEVEL STATS -------
+//  more ui stuff here later probably tbh
+//
