@@ -69,3 +69,16 @@ button:hover{
 #smalltext {
     font-size:30px;
 }
+
+/* level blocks in the list */
+.levelBlockStats {
+    font-size:75%
+}
+.levelBlock {
+    padding:5px;
+    background-color:rgba(255, 255, 255, 0.05);
+}
+.levelBlockDelete {
+    float:right; 
+    padding:5px
+}

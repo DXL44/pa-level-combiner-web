@@ -13,26 +13,42 @@ function download(filename, text){
     document.body.removeChild(element);
 }
 
-// ------- INPUTS ------
-// Through the magic of DOM, this'll allow for creating new level upload slots.
+// ------- LEVEL LIST ------
+// Through the magic of DOM, this'll allow for creating a list of levels that you can remove.
+// how it should look:
+/* <div class="levelInList" style="padding:5px;background-color:rgba(255, 255, 255, 0.05);">
+              <image src="https://cdn.discordapp.com/emojis/1016441132433014935.webp?size=96&quality=lossless" width="25" style="float:right; padding:5px" onClick="console.log('sex!')"/>
+              <b>level name 2</b><br>
+              <span style="font-size:75%">5678 objects // 1234 events</span>
+              
+       </div> */
 
-function addInput(){ // Does what you'd expect. Adds a new input.
-    var inpNumber = document.getElementsByClassName("levelUpload").length
-    // should look like this: 
-    // <input type="file" accept=".lsb" id="levelupload" onChange="storeLevel()">
-    var input = document.createElement("input");
-    input.classList.add("levelUpload"); 
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", ".lsb");
-    input.id="levelUpload"+inpNumber
-    input.setAttribute("onChange",`storeNewLevel(${inpNumber}, levelsArray)`); // a surprise tool that will help us later
-    //not sure abt that now actually but maybe
-    document.getElementById('infotest').appendChild(input) // slap it into the page
-} 
-
-//actually this might need to be reworked tbh
-
-var levelsArray = [] 
+function createLevelBlock(level){ // Creates a HTML object for the level that goes in the list on the page
+    // the "parent" div
+    const listBlock = document.createElement('div')
+    listBlock.classList.add('levelBlock')
+    // the image
+    const deleteButton = document.createElement('image')
+    deleteButton.setAttribute('src', 'https://cdn.discordapp.com/emojis/1016441132433014935.webp?size=96&quality=lossless')
+    deleteButton.setAttribute('width', '25')
+    deleteButton.classList.add('levelBlockDelete')
+    // fix this, needs function
+    deleteButton.setAttribute('onClick', 'deleteLevel(level position in the list lmao)')
+    //subtitile
+    const levelName = document.createElement('b')
+    listBlock.classList.add('levelBlockName')
+    levelName.innerHTML = window.prompt("Enter this file's name (optional):","An Awesome Beatmap")
+    // stats
+    const levelStats = document.createElement('span')
+    levelStats.classList.add('levelBlockStats')
+    levelStats.innerHTML = `${level.beatmap_objects.length} objects`
+    // add everything as a child
+    listBlock.appendChild(deleteButton)
+    listBlock.appendChild(levelName)
+    listBlock.appendChild(document.createElement('br'))
+    listBlock.appendChild(levelStats)
+    return listBlock
+}
 
 function storeNewLevel(number, array){ 
     input = document.getElementById(`levelUpload${number}`); // We set the ID appropriately in
@@ -140,42 +156,46 @@ function combineLevels(level1, level2) { //Combine ALL levels in an array of lev
 }
 
 function combineLevelArray(array){ //combine ALL levels in an array of level JSON objects
-    finalLevel = combineLevels(array[0], array[1])
-    for (let i = 2; i < (array.length-1); i++) {
+    finalLevel = array[0]
+    for (let i = 1; i < (array.length); i++) {
         finallevel = combineLevels(finalLevel, array[i])
     }
+    return finalLevel
 }
+
+// THE LEVEL LIST
+
+let levelsArray = [] 
+
+function addLevelToList(level) { // add a level to the list
+    document.getElementById('levelsList').appendChild(createLevelBlock(level))
+    levelsArray.push(level)
+}
+
+/* statOutput = document.getElementById("infotest")
+        statOutput.innerHTML += `<br>INITIAL MARKERS: ${Object.keys(levelJSON.ed.markers).length}`
+        console.log("HOLY SHIT THE SECOND MARKER IN THIS LEVEL IS " + JSON.stringify(levelJSON.ed.markers[2]) + "!!!!")    }
+ */
+
 function loadLevel() { //Add a level to THE LIST 
     inputLevel = theRealLevel
     if (inputLevel == ""){
-        console.log("oops don't do that")
+        window.alert('You need to choose a level first!')
         return
     } else {
-        console.log("doing it...");
+        //Load level from file
+        console.log("Loading level...");
         levelJSON = JSON.parse(inputLevel);
-        console.log("LOADED LEVEL JSON");
-        statOutput = document.getElementById("infotest")
-        statOutput.innerHTML += `<br>INITIAL MARKERS: ${Object.keys(levelJSON.ed.markers).length}`
-        console.log("HOLY SHIT THE SECOND MARKER IN THIS LEVEL IS " + JSON.stringify(levelJSON.ed.markers[2]) + "!!!!")
-        //Magical marker doubling machine. Temporary code just as a proof of concept
-        let itemLength
-        itemLength = levelJSON.ed.markers.length
-        //This is pretty much what we'll have to do except pushing to a new level file
-        //And pushing from several of these
-        for (let i = 0; i < (itemLength-1); i++) { // 
-            console.log("Adding item" + i)
-            levelJSON.ed.markers.push(levelJSON.ed.markers[i]) 
-        }
-        console.log('lmao done')
-        console.log(levelJSON.ed.markers) 
-        console.log("LOADING THE LEVEL STATS YIPPIE!!!!!!!!!")
-        statOutput.innerHTML += `<br>OHHHH SHIT I DOUBLED THEM NOW ITS: ${Object.keys(levelJSON.ed.markers).length}`
+        console.log("Level JSON loaded!");
+        addLevelToList(levelJSON)
     }
 }
 
+
+
 function saveLevel(level) {
     // var finalLevel = JSON.stringify(level)
-    download("level"+ ".lsb", level);
+    download("level"+ ".lsb", JSON.stringify(level));
 }
 
 // ------- LEVEL STATS -------
