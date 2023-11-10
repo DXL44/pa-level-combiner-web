@@ -136,7 +136,7 @@ function combineLevels(level1, level2) { //Combine ALL levels in an array of lev
     var finalLevel = level1
     // push push push push push push EVERYTHING 
     //needs if statements in case there is Nothing
-    mergeArrays(finalLevel.ed.markers, level2.ed.makers)
+    //mergeArrays(finalLevel.ed.markers, level2.ed.makers)
     if (level2.ed.markers){
         if (finalLevel.ed.markers) {
             finalLevel.ed.markers.push(...level2.ed.markers)
@@ -170,6 +170,7 @@ function combineLevels(level1, level2) { //Combine ALL levels in an array of lev
         finalLevel.bg_objects.push(...level2.bg_objects)
     }*/
     for (i in finalLevel.events) {
+        console.log(`Added event ${i}!`)
         finalLevel.events[i].push(...level2.events[i]) 
     }
     
