@@ -3,7 +3,7 @@
 
 
 // ------- KEY FUNCTIONS -------
-function download(filename, text){
+function download(filename, text) { // Download (self explanatory) 
     var element = document.createElement('a');
     element.setAttribute('href','data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download',filename);
@@ -12,6 +12,18 @@ function download(filename, text){
     element.click();
     document.body.removeChild(element);
 }
+function combinedLength(jsonObject) { 
+	var totalLength = 0;
+
+	for (var key in jsonObject)
+    { 
+        // console.log(`Adding key ${key}: ${Object.keys(jsonObject[key]).length}`)
+        totalLength += Object.keys(jsonObject[key]).length
+    }
+    return totalLength;
+}
+/*
+
 
 // ------- LEVEL LIST ------
 // Through the magic of DOM, this'll allow for creating a list of levels that you can remove.
@@ -41,7 +53,7 @@ function createLevelBlock(level){ // Creates a HTML object for the level that go
     // stats
     const levelStats = document.createElement('span')
     levelStats.classList.add('levelBlockStats')
-    levelStats.innerHTML = `${level.beatmap_objects.length} objects`
+    levelStats.innerHTML = `${level.beatmap_objects.length} objects / ${combinedLength(level.events)} events`
     // add everything as a child
     listBlock.appendChild(deleteButton)
     listBlock.appendChild(levelName)
@@ -117,21 +129,35 @@ function storeLevel(){ // old function, REMOVE
           alert(fileReader.error);
     }
 }
+
+
 function combineLevels(level1, level2) { //Combine ALL levels in an array of level JSON objects
     console.log(`combining levels lol`)
     var finalLevel = level1
     // push push push push push push EVERYTHING 
     //needs if statements in case there is Nothing
+    mergeArrays(finalLevel.ed.markers, level2.ed.makers)
     if (level2.ed.markers){
-        finalLevel.ed.markers.push(...level2.ed.markers)
+        if (finalLevel.ed.markers) {
+            finalLevel.ed.markers.push(...level2.ed.markers)
+        } else {
+            finalLevel.ed.markers = level2.ed.markers
+        }   
+        
     }
-    if (level2.prefab_objects){
+    keysArray = ['prefab_objects', 'prefabs', 'checkpoints', 'beatmap_objects', 'bg_objects']
+    for (i in keysArray) {
+        if (finalLevel[i]) {
+            finalLevel[i].push(...level2[i])   
+        }
+    }
+    /*if (level2.prefab_objects){
         finalLevel.prefab_objects.push(...level2.prefab_objects)
     }
     if (level2.prefabs){
         finalLevel.prefabs.push(...level2.prefabs)
     }
-    if (level2.themes){
+    /*if (level2.themes){
         finalLevel.themes.push(...level2.themes)
     }
     if (level2.checkpoints){
@@ -142,13 +168,11 @@ function combineLevels(level1, level2) { //Combine ALL levels in an array of lev
     }
     if (level2.bg_objects){
         finalLevel.bg_objects.push(...level2.bg_objects)
+    }*/
+    for (i in finalLevel.events) {
+        finalLevel.events[i].push(...level2.events[i]) 
     }
-
-    if (level2.events){
-        for (let i = 0; i < (finalLevel.events.length); i++) { // event keyframes (we get silly with it and iterate)
-            finalLevel.events[i].push(...level2.events[i])
-        }
-    }
+    
 
     console.log("done lol:")
     console.log(finalLevel)
