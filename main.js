@@ -224,5 +224,123 @@ function saveLevel(level) {
 }
 
 // ------- LEVEL STATS -------
-//  more ui stuff here later probably tbh
-//
+//  Form Chart
+const xValues = [0];
+const yValues = [0];
+
+objsChart = new Chart("chartObjs", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+      fill: true,
+      lineTension: 0,
+      backgroundColor: "rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: yValues
+    }]
+  },
+  options: {
+    maintainAspectRatio: false,
+    legend: {display: true},
+    scales: {
+      yAxes: [{ticks: {min: 0, max:16}}],
+    },
+    elements: {
+        point:{
+            radius: 0
+        }
+    },
+    title: {
+        text : "Object Counts Over Time",
+        display: true,
+    }
+  }
+});
+
+// Create level chart
+
+function makeChartObjs(inputLevel)
+{
+    // --- PART 1: Analyze the objects
+    
+    console.log("Preparing graph - PHASE 1: Object Analysis")
+    timedObjects = []    
+    for (i = 0; i < inputLevel.beatmap_objects.length; i++) 
+    {
+        
+        // lifespan
+        switch (inputLevel.beatmap_objects[i].akt) 
+        { 
+            case 0: // No autokill
+            {
+                console.log("wtf thats a no autokill object!!! things might get funky!")
+                newLifespan = Infinity;
+                break;
+            }
+            case 1: // Last keyframe - find the time of the last keyframe of the object
+            {   // use the maximum time out of all four keyframe types
+                newLifespan = Math.max(levelJSON.beatmap_objects[i].events.pos[Object.keys(levelJSON.beatmap_objects[i].events.pos).length-1].t, levelJSON.beatmap_objects[i].events.rot[Object.keys(levelJSON.beatmap_objects[i].events.rot).length-1].t, levelJSON.beatmap_objects[i].events.sca[Object.keys(levelJSON.beatmap_objects[i].events.sca).length-1].t, levelJSON.beatmap_objects[i].events.col[Object.keys(levelJSON.beatmap_objects[i].events.col).length-1].t)
+                break;
+            }
+            case 2: // Last KF offset (same as above, but add some time)
+            {
+                newLifespan = inputLevel.beatmap_objects[i].ako + Math.max(levelJSON.beatmap_objects[i].events.pos[Object.keys(levelJSON.beatmap_objects[i].events.pos).length-1].t, levelJSON.beatmap_objects[i].events.rot[Object.keys(levelJSON.beatmap_objects[i].events.rot).length-1].t, levelJSON.beatmap_objects[i].events.sca[Object.keys(levelJSON.beatmap_objects[i].events.sca).length-1].t, levelJSON.beatmap_objects[i].events.col[Object.keys(levelJSON.beatmap_objects[i].events.col).length-1].t)                
+                break;
+            }
+            case 3: // Fixed time - pretty straightforward, just use AKO
+            {
+                newLifespan = inputLevel.beatmap_objects.ako;
+                break;
+            }
+            case 4: // Song time - subtract the start time from this to get object lifespan  
+            {
+                newLifespan = inputLevel.beatmap_objects[i].ako - inputLevel.beatmap_objects[i].st;
+                break;
+            }
+        }
+        newObject = {
+            "time": Math.round(inputLevel.beatmap_objects[i].st * 10) / 10, 
+            "lifespan": newLifespan   
+        }
+        console.log(`Pushing object ${i} | Adjusted start time: ${newObject.time} | Dies after: ${newLifespan}`)
+        timedObjects.push(newObject)
+    }
+
+
+    // --- PART 2: Create the graph 
+    trackedObjects = [];
+    for(j = 0; j < timedObjects.length/4; j +=0.1)
+    {   
+        // Check for new objects at this start time
+        while (timedObjects[0].time == j)
+            {
+                // keeps infinite looping here.
+                console.log("GO!!!!!!!!!!!!!!!!!");
+                trackedObjects.push(timedObjects[0].lifespan);
+                // invalid array length at 32 above
+                timedObjects.shift();
+            }
+    }
+
+    console.log("keep going....")
+    for (i =0; i < timedObjects.length; i++)
+    {
+        trackedObjects[i] -= 0.1;  
+       if (trackedObjects[i] < 0)
+        {
+           trackedObjects.splice(i, 1)
+        }
+        console.log(`Pushing value ${trackedObjects.length} at ${xValues[xValues.length-1]+0.1}`)
+        xValues.push(xValues[xValues.length-1]+0.1);
+        yValues.push(trackedObjects.length);
+        /*if (trackedObjects.length > objsChart.scales.yAxes[0].max)
+        {
+            objsChart.scales.yAxes[0].max = trackedObjects.length;
+        }*/
+    }
+        
+        console.log("mmm, refreshing!")
+        
+        objsChart.update() // refresh!
+}
