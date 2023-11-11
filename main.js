@@ -244,7 +244,7 @@ objsChart = new Chart("chartObjs", {
     maintainAspectRatio: false,
     legend: {display: true},
     scales: {
-      yAxes: [{ticks: {min: 0, max:16}}],
+      yAxes: [{ticks: {min: 0, max:5}}],
     },
     elements: {
         point:{
@@ -285,7 +285,8 @@ function makeChartObjs(inputLevel)
             }
             case 2: // Last KF offset (same as above, but add some time)
             {
-                newLifespan = inputLevel.beatmap_objects[i].ako + Math.max(levelJSON.beatmap_objects[i].events.pos[Object.keys(levelJSON.beatmap_objects[i].events.pos).length-1].t, levelJSON.beatmap_objects[i].events.rot[Object.keys(levelJSON.beatmap_objects[i].events.rot).length-1].t, levelJSON.beatmap_objects[i].events.sca[Object.keys(levelJSON.beatmap_objects[i].events.sca).length-1].t, levelJSON.beatmap_objects[i].events.col[Object.keys(levelJSON.beatmap_objects[i].events.col).length-1].t)                
+                //newLifespan = (inputLevel.beatmap_objects[i].ako + Math.max(levelJSON.beatmap_objects[i].events.pos[Object.keys(levelJSON.beatmap_objects[i].events.pos).length-1].t, levelJSON.beatmap_objects[i].events.rot[Object.keys(levelJSON.beatmap_objects[i].events.rot).length-1].t, levelJSON.beatmap_objects[i].events.sca[Object.keys(levelJSON.beatmap_objects[i].events.sca).length-1].t, levelJSON.beatmap_objects[i].events.col[Object.keys(levelJSON.beatmap_objects[i].events.col).length-1].t))                
+                newLifespan = 3;
                 break;
             }
             case 3: // Fixed time - pretty straightforward, just use AKO
@@ -310,23 +311,31 @@ function makeChartObjs(inputLevel)
 
     // --- PART 2: Create the graph 
     trackedObjects = [];
-    for(j = 0; j < timedObjects.length/4; j +=0.1)
+    for(j = 0; j < (timedObjects[timedObjects.length-1].time + timedObjects[timedObjects.length-1].lifespan); j +=0.1)
     {   
+        // EXCEPTION: No objects at this time
+        if ((timedObjects[0].time != j) && (trackedObjects.length == 0))
+        {
+            console.log(`No objects at time ${j}!`)
+            xValues.push(xValues[xValues.length-1]+0.1);
+            yValues.push(0);
+            continue;
+        }
         // Check for new objects at this start time
         while (timedObjects[0].time == j)
             {
                 // keeps infinite looping here.
-                console.log("GO!!!!!!!!!!!!!!!!!");
+                console.log(`Pushed an object at time ${j}!`);
                 trackedObjects.push(timedObjects[0].lifespan);
                 // invalid array length at 32 above
                 timedObjects.shift();
             }
-    }
 
-    console.log("keep going....")
-    for (i =0; i < timedObjects.length; i++)
+        console.log(`TRACKED OBJECTS RN: ${trackedObjects}`)
+    
+    for (i =0; i < trackedObjects.length; i++)
     {
-        trackedObjects[i] -= 0.1;  
+        trackedObjects[i] = trackedObjects[i] - 0.1;  
        if (trackedObjects[i] < 0)
         {
            trackedObjects.splice(i, 1)
@@ -339,6 +348,9 @@ function makeChartObjs(inputLevel)
             objsChart.scales.yAxes[0].max = trackedObjects.length;
         }*/
     }
+    }
+
+    
         
         console.log("mmm, refreshing!")
         
