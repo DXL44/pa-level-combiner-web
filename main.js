@@ -262,6 +262,8 @@ objsChart = new Chart("chartObjs", {
 
 function makeChartObjs(inputLevel)
 {
+    // Make the chart visible
+    document.getElementById("chartObjs").style.display = "block";
     // NOTE: Because floating point numbers are stupid, all time values represent tenths of a second until the very end
 
     // --- PART 1: Analyze the objects
